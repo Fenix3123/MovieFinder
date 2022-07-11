@@ -5,7 +5,7 @@ import org.apache.spark.sql.functions.{explode, to_date, col}
 
 object query {
   def main(args:Array[String]): Unit = {
-    queryWeighted()
+    queryOne("Shrek")
 
   }
   def queryAll(): Unit ={
@@ -16,9 +16,9 @@ object query {
       .enableHiveSupport()
       .getOrCreate()
     Logger.getLogger("org").setLevel(Level.ERROR)
-    println("created spark session")
-    spark.sql("Select * from Movies").show()
-    spark.sql("Select * from Genres").show()
+    //println("created spark session")
+    spark.sql("Select * from Movies").show(1000)
+    spark.sql("Select * from Genres").show(1000)
 
   }
 
@@ -30,8 +30,8 @@ object query {
       .enableHiveSupport()
       .getOrCreate()
     Logger.getLogger("org").setLevel(Level.ERROR)
-    println("created spark session")
-    spark.sql(s"SELECT * FROM Movies where title = '$name'").show()
+    //println("created spark session")
+    spark.sql(s"SELECT * FROM Movies where original_title = '$name'").show()
   }
   def queryPopular(): Unit ={
     val spark = SparkSession
@@ -41,7 +41,7 @@ object query {
       .enableHiveSupport()
       .getOrCreate()
     Logger.getLogger("org").setLevel(Level.ERROR)
-    println("created spark session")
+    //println("created spark session")
     spark.sql("Select * from Movies WHERE popularity = (SELECT MAX(popularity) FROM Movies)").show()
   }
 
@@ -53,9 +53,9 @@ object query {
       .enableHiveSupport()
       .getOrCreate()
     Logger.getLogger("org").setLevel(Level.ERROR)
-    println("created spark session")
-    val df1 = spark.read.json(path = "C:\\proj1\\response.json")
-    val df2 = spark.read.json(path = "C:\\proj1\\genres.json")
+    //println("created spark session")
+    val df1 = spark.sql("Select * from Movies").toDF()
+    val df2 = spark.sql("Select * from Genres").toDF()
 
     import spark.implicits._
     val q1 = df1.select($"title", explode($"genre_ids").alias("id") ).toDF()
@@ -75,7 +75,7 @@ object query {
       .enableHiveSupport()
       .getOrCreate()
     Logger.getLogger("org").setLevel(Level.ERROR)
-    println("created spark session")
+    //println("created spark session")
     val df1 = spark.sql("SELECT * FROM Movies")
     import spark.implicits._
     val q1 = df1.select($"title", to_date(col("release_date"), "yyyy-MM-dd").alias("date"))
@@ -91,9 +91,9 @@ object query {
       .enableHiveSupport()
       .getOrCreate()
     Logger.getLogger("org").setLevel(Level.ERROR)
-    println("created spark session")
-    val df1 = spark.read.json(path = "C:\\proj1\\response.json")
-    val df2 = spark.read.json(path = "C:\\proj1\\genres.json")
+    //println("created spark session")
+    val df1 = spark.sql("Select * from Movies").toDF()
+    val df2 = spark.sql("Select * from Genres").toDF()
 
     import spark.implicits._
     val q1 = df1.select($"title", explode($"genre_ids").alias("id") ).toDF()
@@ -112,7 +112,7 @@ object query {
       .enableHiveSupport()
       .getOrCreate()
     Logger.getLogger("org").setLevel(Level.ERROR)
-    println("created spark session")
+    //println("created spark session")
     val df = spark.sql("SELECT title, cast(sum(vote_average * vote_count) / sum(vote_count) as decimal(8,2)) as weighted_average FROM Movies group by title order by weighted_average desc")
     df.show(1000)
   }

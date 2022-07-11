@@ -12,26 +12,37 @@ object jsonprocess extends App{
     .getOrCreate()
   Logger.getLogger("org").setLevel(Level.ERROR)
   println("created spark session")
-  val df1 = spark.read.json(path = "C:\\proj1\\response.json")
+  val df1 = spark.read.json(path = "hdfs://localhost:9000/user/proj1/response.json")
   df1.printSchema()
   df1.createOrReplaceTempView("Shows")
-  spark.sql("Select * from Shows").show()
+  spark.sql("Select * from Shows")
 
-  val df2 = spark.read.json(path = "C:\\proj1\\genres.json")
+  val df2 = spark.read.json(path = "hdfs://localhost:9000/user/proj1/genresresponse.json")
   df2.printSchema()
   df2.createOrReplaceTempView("types")
-  spark.sql("Select * from types").show()
+  spark.sql("Select * from types")
 
   spark.sql("Drop table if exists Movies")
-  spark.sql("create table if not exists Movies(adult Boolean, backdrop_path STRING,genre_ids ARRAY<Int>, id Int, original_language String, original_title String, overview String, popularity Double, poster_path String, release_date String, title String, video boolean, vote_average double, vote_count Int)")
-  spark.sql("Insert into Table Movies (Select adult,backdrop_path, genre_ids, id, original_language, original_title, overview, popularity, poster_path, release_date, title, video, vote_average, vote_count from Shows)")
-  spark.sql("Select * from Movies").show()
+  spark.sql("create table if not exists Movies(adult Boolean, backdrop_path STRING,genre_ids ARRAY<Int>, id Int, original_language string,original_title String, overview String, popularity Double, poster_path String, release_date String, title String, video boolean, vote_average double, vote_count Int)")
+  spark.sql("Insert Into Table Movies(Select adult,backdrop_path, genre_ids, id, original_language, original_title, overview, popularity, poster_path, release_date, title, video, vote_average, vote_count from Shows)")
+  spark.sql("Select * from Movies").show(1000)
+
+  spark.sql("Set hive.exec.dynamic.partition.mode=nonstrict")
+  spark.sql("Drop table if exists MoviesPartitioned")
+  spark.sql("create table if not exists MoviesPartitioned(adult Boolean, backdrop_path STRING,genre_ids ARRAY<Int>, id Int, original_title String, overview String, popularity Double, poster_path String, release_date String, title String, video boolean, vote_average double, vote_count Int) PARTITIONED BY(original_language String) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
+  spark.sql("Insert overwrite Table MoviesPartitioned PARTITION(original_language) (Select adult,backdrop_path, genre_ids, id, original_title, overview, popularity, poster_path, release_date, title, video, vote_average, vote_count, original_language from Shows)")
+  spark.sql("Select * from MoviesPartitioned").show(1000)
+
+  val dfs1 = spark.sql("Select * from Movies")
+  dfs1.write.mode("overwrite").json("hdfs://localhost:9000/user/proj1/movies.json")
 
   spark.sql("Drop table if exists Genres")
   spark.sql("create table if not exists Genres(id Int, name String)")
   spark.sql("Insert into Table Genres (Select id, name from types)")
   spark.sql("Select * from Genres").show()
 
+  val dfs2 = spark.sql("Select * from Genres")
+  dfs1.write.mode("overwrite").json("hdfs://localhost:9000/user/proj1/genres.json")
   /*val df2 = spark.read.json(path = "C:\\proj1\\genres.json")
   df2.show(1000)*/
 

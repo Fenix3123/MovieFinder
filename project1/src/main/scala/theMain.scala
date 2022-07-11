@@ -8,6 +8,7 @@ import scala.util.control.Breaks.break
 object theMain{
   private var connection:Connection = _
   def main(args:Array[String]): Unit ={
+
     while(true){
       println("Welcome to MovieFinder!!!")
       println("What would you like to do today? (Type a number and enter to execute)")
@@ -19,7 +20,11 @@ object theMain{
       try {
         option = StdIn.readInt()
       }catch{
-        case e: NumberFormatException => println("Input has to be one of the numbers")
+        case e: NumberFormatException =>{
+          println()
+          println("---Input has to be one of the numbers---")
+          println()
+        }
       }
       if(option == 1){
         var username = StdIn.readLine("What is your username?: ")
@@ -27,7 +32,9 @@ object theMain{
         if(checkUser(username: String, password: String) == false) {
           //check for role
           if(getUser(username, password) == true){
-            while(true) {
+            var while1 = true
+            while(while1) {
+              println()
               println("Welcome " + username)
               println("What would you like to do?")
               println("1. Update Credentials")
@@ -45,7 +52,11 @@ object theMain{
               try {
                 option = StdIn.readInt()
               }catch{
-                case e: NumberFormatException => println("Input has to be one of the numbers")
+                case e: NumberFormatException =>{
+                  println()
+                  println("---Input has to be one of the numbers---")
+                  println()
+                }
               }
               if(option == 1){
                 var name = StdIn.readLine("Enter the new name: ")
@@ -58,7 +69,8 @@ object theMain{
                 break
               }else if(option == 3){
                 println("logging out")
-                break
+                println()
+                while1 = false
               }else if(option == 4){
                 query.queryAll()
               }else if(option == 5){
@@ -81,12 +93,12 @@ object theMain{
                query.queryCount()
               }else if(option == 10){
                 query.queryWeighted()
-              }else{
-                println("No option available")
               }
             }//end of while loop for user
           }else{
-            while(true) {
+            var while1 = true
+            while(while1) {
+              println()
               println("Welcome admin " + username)
               println("What would you like to do?")
               println("1. Update Credentials")
@@ -98,7 +110,11 @@ object theMain{
               try {
                 option = StdIn.readInt()
               }catch{
-                case e: NumberFormatException => println("Input has to be one of the numbers")
+                case e: NumberFormatException =>{
+                  println()
+                  println("---Input has to be one of the numbers---")
+                  println()
+                }
               }
               if(option == 1){
                 var name = StdIn.readLine("Enter the new name: ")
@@ -115,18 +131,17 @@ object theMain{
                 deleteUser(user_name: String)
               }else if(option == 4){
                 println("logging out")
-                break
-              }else{
-                println("No option available")
+                while1 = false
               }
-
             }//end of while admin
           }// end of block for admin
 
 
         }else {
+          println("---------------")
           println("No user exists")
           println("please try again")
+          println("---------------")
         }
         //System.exit(0)
       }else if(option == 2){
@@ -140,8 +155,6 @@ object theMain{
       }else if(option == 3){
         println("Exit program")
         System.exit(0)
-      }else{
-        println("No option available")
       }
 
     }//end of first while true
@@ -259,7 +272,9 @@ object theMain{
     Class.forName(driver)
     connection = DriverManager.getConnection(url, user, password)
     var insertSql = connection.prepareStatement(s"DELETE FROM users WHERE username ='$username'")
+    println()
     println("User deleted")
+    println()
     insertSql.executeUpdate()
   }
 
